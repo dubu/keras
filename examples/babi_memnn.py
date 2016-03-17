@@ -94,6 +94,19 @@ def vectorize_stories(data, word_idx, story_maxlen, query_maxlen):
     return (pad_sequences(X, maxlen=story_maxlen),
             pad_sequences(Xq, maxlen=query_maxlen), np.array(Y))
 
+def decode_data(arr, word_idx, story_maxlen, query_maxlen):
+
+
+    X = []
+    # x = [ word_decode[lambda i : i  > 0  and i-1 or None]  for i in arr[0] ]
+
+    x = []
+    for i  in arr[0] :
+        if i > 0 :
+            x.append(word_decode[i-1])
+    X.append(x)
+    return X
+
 
 # path = get_file('babi-tasks-v1-2.tar.gz',origin='http://www.thespermwhale.com/jaseweston/babi/tasks_1-20_v1-2.tar.gz')
 path = "/Users/rigel/Downloads/tasks_1-20_v1-2.tar.gz"
@@ -131,6 +144,7 @@ print('-')
 print('Vectorizing the word sequences...')
 
 word_idx = dict((c, i + 1) for i, c in enumerate(vocab))
+word_decode = dict((i -1 , c)  for c , i in word_idx.items())
 inputs_train, queries_train, answers_train = vectorize_stories(train_stories, word_idx, story_maxlen, query_maxlen)
 inputs_test, queries_test, answers_test = vectorize_stories(test_stories, word_idx, story_maxlen, query_maxlen)
 
@@ -215,7 +229,12 @@ def decodeVal(ar):
             sum +=  i
     return sum
 
+
 for iteration in range(1,100) :
+
+    print()
+    print('-' * 50)
+    print('Iteration', iteration)
 
     answer.fit([inputs_train, queries_train, inputs_train], answers_train,
                batch_size=32,
@@ -226,6 +245,7 @@ for iteration in range(1,100) :
     for i in range(10):
         ind = np.random.randint(0, len(inputs_train))
         rowX =  [inputs_train[np.array([ind])],queries_train[np.array([ind])],inputs_train[np.array([ind])]]
+        rowY  = [answers_train[np.array([ind])]]
         preds = answer.predict_classes(rowX, verbose=0)
         expect = rowX
         correct = answers_train[np.array([ind])]
@@ -233,14 +253,21 @@ for iteration in range(1,100) :
         # print('QI', rowX[0])
         # print('QQ', rowX[1])
         # print('T', correct)
+        print('QI', decode_data(rowX[0], word_idx, story_maxlen, query_maxlen))
+        print('QQ', decode_data(rowX[1], word_idx, story_maxlen, query_maxlen))
+        # print('T', decode_data(rowY[0], word_idx, story_maxlen, query_maxlen))
+
         # print('G', guess)
 
-        # gg =  np.zeros(answers_train.shape[1])
-        # gg[guess] = 1
+        gg =  np.zeros(answers_train.shape[1])
+        gg[guess] = 1
         # print('GG', gg)
 
         val = decodeVal(correct[0])
-        print('TT', val)
+        # print('TT', val)
+
+        print('T', word_decode[val-1])
+        print('G', word_decode[guess[0]-1])
 
         print(colors.ok + '☑' + colors.close if val == guess[0] else colors.fail + '☒' + colors.close, guess[0])
         print('---')
