@@ -62,7 +62,7 @@ class CharacterTable(object):
 
 class colors:
     ok = '\033[92m'
-    fail = '\033[91m'
+    fail = '\033[41m'
     close = '\033[0m'
 
 # Parameters for the model and dataset

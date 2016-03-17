@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''Train a memory network on the bAbI dataset.
 
 References:
@@ -94,8 +95,8 @@ def vectorize_stories(data, word_idx, story_maxlen, query_maxlen):
             pad_sequences(Xq, maxlen=query_maxlen), np.array(Y))
 
 
-path = get_file('babi-tasks-v1-2.tar.gz',
-                origin='http://www.thespermwhale.com/jaseweston/babi/tasks_1-20_v1-2.tar.gz')
+# path = get_file('babi-tasks-v1-2.tar.gz',origin='http://www.thespermwhale.com/jaseweston/babi/tasks_1-20_v1-2.tar.gz')
+path = "/Users/rigel/Downloads/tasks_1-20_v1-2.tar.gz"
 tar = tarfile.open(path)
 
 challenges = {
@@ -199,6 +200,26 @@ answer.compile(optimizer='rmsprop', loss='categorical_crossentropy')
 # Note: you could use a Graph model to avoid repeat the input twice
 answer.fit([inputs_train, queries_train, inputs_train], answers_train,
            batch_size=32,
-           nb_epoch=120,
+           nb_epoch=2,
            show_accuracy=True,
            validation_data=([inputs_test, queries_test, inputs_test], answers_test))
+
+
+class colors:
+    ok = '\033[92m'
+    fail = '\033[41m'
+    close = '\033[0m'
+
+for i in range(10):
+    ind = np.random.randint(0, len(inputs_test))
+    rowX, rowy = inputs_test[np.array([ind])], queries_test[np.array([ind])]
+    preds = answer.predict_classes(rowX, verbose=0)
+    q = inputs_train[rowX[0]]
+    correct = answers_train(rowy[0])
+    guess = answers_train(preds[0])
+    print('Q', q)
+    print('T', correct)
+    print(colors.ok + '' + colors.close if correct == guess else colors.fail + '☒' + colors.close, guess)
+    print('---')
+
+# inputs_train, queries_train, answers_train

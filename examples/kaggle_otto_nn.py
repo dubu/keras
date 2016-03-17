@@ -81,6 +81,7 @@ X, labels = load_data('train.csv', train=True)
 X, scaler = preprocess_data(X)
 y, encoder = preprocess_labels(labels)
 
+
 X_test, ids = load_data('test.csv', train=False)
 X_test, _ = preprocess_data(X_test, scaler)
 
@@ -111,10 +112,10 @@ model.add(Dropout(0.5))
 model.add(Dense(nb_classes))
 model.add(Activation('softmax'))
 
-model.compile(loss='categorical_crossentropy', optimizer='adam')
+model.compile(loss='categorical_crossentropy', optimizer='sgd')
 
 print('Training model...')
-model.fit(X, y, nb_epoch=20, batch_size=128, validation_split=0.15)
+model.fit(X, y, nb_epoch=2, batch_size=128, validation_split=0.15)
 
 print('Generating submission...')
 proba = model.predict_proba(X_test)
