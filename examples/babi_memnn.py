@@ -198,11 +198,7 @@ answer.add(Activation('softmax'))
 
 answer.compile(optimizer='rmsprop', loss='categorical_crossentropy')
 # Note: you could use a Graph model to avoid repeat the input twice
-answer.fit([inputs_train, queries_train, inputs_train], answers_train,
-           batch_size=32,
-           nb_epoch=2,
-           show_accuracy=True,
-           validation_data=([inputs_test, queries_test, inputs_test], answers_test))
+
 
 
 class colors:
@@ -210,16 +206,41 @@ class colors:
     fail = '\033[41m'
     close = '\033[0m'
 
-for i in range(10):
-    ind = np.random.randint(0, len(inputs_test))
-    rowX, rowy = inputs_test[np.array([ind])], queries_test[np.array([ind])]
-    preds = answer.predict_classes(rowX, verbose=0)
-    q = inputs_train[rowX[0]]
-    correct = answers_train(rowy[0])
-    guess = answers_train(preds[0])
-    print('Q', q)
-    print('T', correct)
-    print(colors.ok + '' + colors.close if correct == guess else colors.fail + '☒' + colors.close, guess)
-    print('---')
 
-# inputs_train, queries_train, answers_train
+def decodeVal(ar):
+
+    sum = 0
+    for i,val in enumerate(ar) :
+        if val ==  1 :
+            sum +=  i
+    return sum
+
+for iteration in range(1,100) :
+
+    answer.fit([inputs_train, queries_train, inputs_train], answers_train,
+               batch_size=32,
+               nb_epoch=3,
+               show_accuracy=True,
+               validation_data=([inputs_test, queries_test, inputs_test], answers_test))
+
+    for i in range(10):
+        ind = np.random.randint(0, len(inputs_train))
+        rowX =  [inputs_train[np.array([ind])],queries_train[np.array([ind])],inputs_train[np.array([ind])]]
+        preds = answer.predict_classes(rowX, verbose=0)
+        expect = rowX
+        correct = answers_train[np.array([ind])]
+        guess =  preds
+        # print('QI', rowX[0])
+        # print('QQ', rowX[1])
+        # print('T', correct)
+        # print('G', guess)
+
+        # gg =  np.zeros(answers_train.shape[1])
+        # gg[guess] = 1
+        # print('GG', gg)
+
+        val = decodeVal(correct[0])
+        print('TT', val)
+
+        print(colors.ok + '☑' + colors.close if val == guess[0] else colors.fail + '☒' + colors.close, guess[0])
+        print('---')
